@@ -1,1 +1,283 @@
-a
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BilalToday.com Account</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        // Tailwind Konfiguration für Theme-Support
+        tailwind.config = {
+            darkMode: 'media', // Passt sich automatisch dem System-Modus des Users an
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-card {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-50 min-h-full flex flex-col justify-between antialiased transition-colors duration-300">
+
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-6 w-full max-w-md mx-auto">
+        
+        <div id="loading-state" class="w-full bg-white dark:bg-zinc-900/80 border border-slate-200/60 dark:border-zinc-800/50 rounded-[28px] p-8 shadow-xl space-y-6">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="w-24 h-24 bg-slate-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
+                <div class="h-6 bg-slate-200 dark:bg-zinc-800 rounded-md w-3/4 animate-pulse"></div>
+                <div class="h-4 bg-slate-200 dark:bg-zinc-800 rounded-md w-1/2 animate-pulse"></div>
+            </div>
+            <div class="space-y-3 pt-4">
+                <div class="h-12 bg-slate-100 dark:bg-zinc-800/50 rounded-xl animate-pulse"></div>
+                <div class="h-12 bg-slate-100 dark:bg-zinc-800/50 rounded-xl animate-pulse"></div>
+            </div>
+        </div>
+
+        <div id="error-state" class="hidden w-full bg-white dark:bg-zinc-900 border border-red-100 dark:border-red-950/50 rounded-[28px] p-8 shadow-xl text-center space-y-4">
+            <div class="w-16 h-16 bg-red-50 dark:bg-red-950/30 text-red-500 dark:text-red-400 rounded-full flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid flex fa-circle-exclamation"></i>
+            </div>
+            <h2 class="text-xl font-semibold tracking-tight text-slate-800 dark:text-zinc-200" id="error-title">Fehler beim Laden</h2>
+            <p class="text-sm text-slate-500 dark:text-zinc-400" id="error-msg">Die Kundenkarte konnte nicht aufgerufen werden.</p>
+        </div>
+
+        <div id="card-content" class="hidden w-full bg-white/90 dark:bg-zinc-900/90 border border-slate-200/60 dark:border-zinc-800/60 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-6 sm:p-8 glass-card space-y-6 transform transition-all duration-500 scale-95 opacity-0">
+            
+            <div class="flex flex-col items-center text-center space-y-3">
+                <div id="profile-avatar" class="w-24 h-24 rounded-full bg-gradient-to-tr from-slate-900 to-slate-700 dark:from-zinc-100 dark:to-zinc-300 text-white dark:text-zinc-900 flex items-center justify-center font-bold text-3xl shadow-inner select-none tracking-wider">
+                    <span id="avatar-initials">--</span>
+                </div>
+                <div class="space-y-1">
+                    <h1 id="customer-name" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Max Mustermann</h1>
+                    <p id="customer-email" class="text-sm text-slate-400 dark:text-zinc-400 font-medium break-all">max.mustermann@email.com</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-50/50 dark:bg-zinc-950/40 border border-slate-100 dark:border-zinc-800/40 rounded-2xl p-4 space-y-3">
+                <div class="text-[11px] uppercase tracking-widest font-semibold text-slate-400 dark:text-zinc-500">Produktstatus</div>
+                
+                <div class="flex items-center justify-between py-1">
+                    <span class="text-sm font-medium text-slate-600 dark:text-zinc-300" id="label-prod1">Produkt 1</span>
+                    <span id="status-prod1" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Aktiv
+                    </span>
+                </div>
+                
+                <div class="h-[1px] bg-slate-200/50 dark:bg-zinc-800/50"></div>
+                
+                <div class="flex items-center justify-between py-1">
+                    <span class="text-sm font-medium text-slate-600 dark:text-zinc-300" id="label-prod2">Produkt 2</span>
+                    <span id="status-prod2" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Aktiv
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-2.5 pt-2">
+                <a id="btn-adalo" href="#" target="_blank" class="w-full inline-flex items-center justify-center gap-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-medium py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 active:scale-[0.99]">
+                    <i class="fa-solid fa-mobile-screen-button text-sm"></i>
+                    <span>App öffnen</span>
+                </a>
+
+                <a id="btn-shop" href="#" target="_blank" class="w-full inline-flex items-center justify-center gap-2.5 bg-white hover:bg-slate-50 dark:bg-zinc-800 dark:hover:bg-zinc-700/80 text-slate-800 dark:text-zinc-100 border border-slate-200 dark:border-zinc-700/60 font-medium py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 active:scale-[0.99]">
+                    <i class="fa-solid fa-bag-shopping text-sm opacity-80"></i>
+                    <span>Shop öffnen</span>
+                </a>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <a id="btn-mail" href="#" class="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 dark:bg-zinc-800 dark:hover:bg-zinc-700/80 text-slate-800 dark:text-zinc-100 border border-slate-200 dark:border-zinc-700/60 font-medium py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 active:scale-[0.99]">
+                        <i class="fa-regular fa-envelope text-sm opacity-80"></i>
+                        <span>Kontakt</span>
+                    </a>
+                    
+                    <a id="btn-whatsapp" href="#" target="_blank" class="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 dark:bg-zinc-800 dark:hover:bg-zinc-700/80 text-slate-800 dark:text-zinc-100 border border-slate-200 dark:border-zinc-700/60 font-medium py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 active:scale-[0.99]">
+                        <i class="fa-brands fa-whatsapp text-sm text-emerald-500 dark:text-emerald-400"></i>
+                        <span>WhatsApp</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-6 text-center select-none">
+        <p class="text-xs font-medium text-slate-400 dark:text-zinc-500 tracking-wide">
+            Powered by <span class="text-slate-600 dark:text-zinc-300 font-semibold">BilalToday.com</span>
+        </p>
+    </footer>
+
+    <script>
+        // ==========================================
+        // ===== GOOGLE SHEETS URL ==================
+        // ==========================================
+        // WICHTIG: Ersetze diese URL komplett mit deiner als .csv veröffentlichten Google Sheet URL!
+        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSXXXXXXXXXXXXX_DEIN_SHEET_ID_HIER_HER/pub?output=csv";
+
+        // ==========================================
+        // ===== BUTTON LINKS & KONFIGURATION =====
+        // ==========================================
+        const CONFIG = {
+            shopUrl: "https://bilaltoday.com/shop", // Standard-Link für "Shop öffnen"
+            whatsappFallback: "https://wa.me/4917612345678", // WhatsApp Link falls keine systemspezifische Logik erwünscht ist
+            mailSubject: "Kundenservice BilalToday", // Betreffzeile für die Mailto-Funktion
+            defaultAvatarColor: "from-blue-600 to-indigo-700", // Tailwind Gradient Klasse für Fallback-Profilbild
+        };
+
+        // DOM Elemente instanziieren
+        const loadingState = document.getElementById('loading-state');
+        const errorState = document.getElementById('error-state');
+        const cardContent = document.getElementById('card-content');
+        const errorTitle = document.getElementById('error-title');
+        const errorMsg = document.getElementById('error-msg');
+
+        // Funktion zum Extrahieren des URL-Parameters "?code=XYZ123"
+        function getCustomerCodeFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('code');
+        }
+
+        // CSV Parser Engine (Trennt Zeilen unter Berücksichtigung von Anführungszeichen)
+        function parseCSV(text) {
+            const lines = text.split(/\r?\n/);
+            if (lines.length === 0) return [];
+            
+            // Header auslesen und normalisieren (Kleinbuchstaben, Leerzeichen entfernen)
+            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+            
+            return lines.slice(1).filter(line => line.trim() !== '').map(line => {
+                // Berücksichtigt Kommas innerhalb von Anführungszeichen sauber via Regex
+                const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
+                const rowObject = {};
+                headers.forEach((header, index) => {
+                    rowObject[header] = values[index] || '';
+                });
+                return rowObject;
+            });
+        }
+
+        // UI Fehler-State triggern
+        function showError(title, message) {
+            loadingState.classList.add('hidden');
+            cardContent.classList.add('hidden');
+            errorTitle.textContent = title;
+            errorMsg.textContent = message;
+            errorState.classList.remove('hidden');
+        }
+
+        // Hauptprozess starten
+        async function initCustomerCard() {
+            const code = getCustomerCodeFromURL();
+
+            // Validierung: Code vorhanden?
+            if (!code) {
+                showError("Ungültiger Aufruf", "Es wurde kein Kunden-Code in der URL gefunden (z.B. ?code=XYZ123). Scanne bitte den NFC Tag erneut.");
+                return;
+            }
+
+            try {
+                // Daten aus Google Sheets holen
+                const response = await fetch(GOOGLE_SHEET_CSV_URL);
+                if (!response.ok) throw new Error("Netzwerkantwort war nicht ok");
+                
+                const csvData = await response.text();
+                const customers = parseCSV(csvData);
+                
+                // Kunden anhand des ausgelesenen Codes suchen
+                const currentCustomer = customers.find(c => c.code && c.code.trim() === code.trim());
+
+                if (!currentCustomer) {
+                    showError("Kunde nicht gefunden", `Der Code "${code}" ist in unserem System leider nicht hinterlegt.`);
+                    return;
+                }
+
+                // UI mit Kundendaten befüllen
+                const fullName = `${currentCustomer.name || ''} ${currentCustomer.nachname || ''}`.trim();
+                document.getElementById('customer-name').textContent = fullName || "Wertgeschätzter Kunde";
+                document.getElementById('customer-email').textContent = currentCustomer.email || "Keine E-Mail angegeben";
+
+                // Initiale für das Profilbild generieren
+                const initialen = ((currentCustomer.name ? currentCustomer.name[0] : '') + (currentCustomer.nachname ? currentCustomer.nachname[0] : '')).toUpperCase();
+                document.getElementById('avatar-initials').textContent = initialen || "BT";
+
+                // Status Produkt 1 befüllen
+                const prod1Value = currentCustomer.produkt1 || "Nicht aktiv";
+                const p1Element = document.getElementById('status-prod1');
+                p1Element.textContent = prod1Value;
+                if(prod1Value.toLowerCase() === 'aktiv' || prod1Value.toLowerCase() === 'ja') {
+                    p1Element.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400";
+                    p1Element.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Aktiv`;
+                } else {
+                    p1Element.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400";
+                }
+
+                // Status Produkt 2 befüllen
+                const prod2Value = currentCustomer.produkt2 || "Nicht aktiv";
+                const p2Element = document.getElementById('status-prod2');
+                p2Element.textContent = prod2Value;
+                if(prod2Value.toLowerCase() === 'aktiv' || prod2Value.toLowerCase() === 'ja') {
+                    p2Element.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400";
+                    p2Element.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Aktiv`;
+                } else {
+                    p2Element.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400";
+                }
+
+                // ===== BUTTON DYNAMISIERUNG =====
+                
+                // Button 1: Adalo Link dynamisch aus Tabelle setzen
+                const adaloBtn = document.getElementById('btn-adalo');
+                if (currentCustomer.adalolink) {
+                    adaloBtn.href = currentCustomer.adalolink;
+                } else {
+                    adaloBtn.classList.add('opacity-50', 'pointer-events-none');
+                    adaloBtn.querySelector('span').textContent = "Keine App zugewiesen";
+                }
+
+                // Button 2: Shop Link aus globaler Config setzen
+                document.getElementById('btn-shop').href = CONFIG.shopUrl;
+
+                // Button 3: Mailto Link generieren
+                if(currentCustomer.email) {
+                    document.getElementById('btn-mail').href = `mailto:${currentCustomer.email}?subject=${encodeURIComponent(CONFIG.mailSubject)}`;
+                } else {
+                    document.getElementById('btn-mail').classList.add('opacity-50', 'pointer-events-none');
+                }
+
+                // Button 4: WhatsApp Link setzen
+                document.getElementById('btn-whatsapp').href = CONFIG.whatsappFallback;
+
+
+                // Sanfte UI-Animation beim Einblenden der Karte
+                loadingState.classList.add('hidden');
+                cardContent.classList.remove('hidden');
+                setTimeout(() => {
+                    cardContent.classList.remove('scale-95', 'opacity-0');
+                    cardContent.classList.add('scale-100', 'opacity-100');
+                }, 50);
+
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                showError("Verbindungsfehler", "Die Kundendaten konnten nicht geladen werden. Bitte überprüfe deine Internetverbindung oder die Konfiguration der Tabelle.");
+            }
+        }
+
+        // Starten, sobald das DOM vollständig geladen ist
+        document.addEventListener('DOMContentLoaded', initCustomerCard);
+    </script>
+</body>
+</html>
