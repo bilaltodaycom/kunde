@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kunden-Dashboard | Apple Style</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="min-h-full flex flex-col justify-between selection:bg-black selection:text-white">
+
+    <!-- Hauptcontainer -->
+    <main class="max-w-3xl w-full mx-auto px-4 py-12 sm:py-20 flex-grow flex flex-col justify-center">
+
+        <!-- Ladezustand / Spinner -->
+        <div id="loadingState" class="flex flex-col items-center justify-center space-y-4 py-20">
+            <div class="w-10 h-10 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+            <p class="text-sm font-medium text-gray-500 tracking-wide">Lade Kundendaten...</p>
+        </div>
+
+        <!-- Fehler- / Nicht gefunden Zustand -->
+        <div id="errorState" class="hidden text-center bg-white/80 backdrop-blur-2xl rounded-2xl p-8 sm:p-12 shadow-sm border border-gray-200/60">
+            <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-semibold">!</div>
+            <h1 class="text-2xl font-semibold tracking-tight text-gray-900 mb-2">Keine Kundendaten geladen</h1>
+            <p id="errorMessage" class="text-gray-500 text-sm max-w-md mx-auto mb-6">Bitte hänge deinen Zugangscode an die URL an (z. B. <code>?code=1234</code>) und stelle sicher, dass deine Google Sheets CSV-URL eingetragen ist.</p>
+        </div>
+
+        <!-- Dashboard Inhalt (Wird nach erfolgreichem Laden angezeigt) -->
+        <div id="dashboardContent" class="hidden space-y-6">
+
+            <!-- Profil-Header (Apple Card Stil) -->
+            <div class="bg-white/80 backdrop-blur-2xl rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200/60 flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left transition-all duration-300">
+                <!-- Avatar mit Initialen -->
+                <div id="userAvatar" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-gray-900 to-gray-700 text-white flex items-center justify-center text-2xl sm:text-3xl font-semibold tracking-wider shadow-md shrink-0">
+                    --
+                </div>
+                <div class="flex-grow">
+                    <h1 id="userName" class="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Lade Name...</h1>
+                    <p id="userEmail" class="text-sm sm:text-base text-gray-500 mt-1 font-normal">--</p>
+                    <div class="mt-3 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/50">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
+                        Aktiv & Verifiziert
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datenbereich: Karten für Notizen / Zusatzinfos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Textfeld 1 -->
+                <div class="bg-white/80 backdrop-blur-2xl rounded-2xl p-6 shadow-sm border border-gray-200/60 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-gray-400 tracking-wider uppercase">Notizen</span>
+                        <p id="textField1" class="text-gray-800 text-sm sm:text-base mt-2 leading-relaxed whitespace-pre-line">--</p>
+                    </div>
+                </div>
+                <!-- Textfeld 2 -->
+                <div class="bg-white/80 backdrop-blur-2xl rounded-2xl p-6 shadow-sm border border-gray-200/60 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-gray-400 tracking-wider uppercase">Zusatzinfos</span>
+                        <p id="textField2" class="text-gray-800 text-sm sm:text-base mt-2 leading-relaxed whitespace-pre-line">--</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interaktive Buttons (Generiert aus URL-Spalten G, H, I) -->
+            <div id="buttonSection" class="bg-white/80 backdrop-blur-2xl rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200/60">
+                <h3 class="text-xs font-semibold text-gray-400 tracking-wider uppercase mb-4">Verknüpfungen & Ressourcen</h3>
+                <div id="actionButtons" class="flex flex-col sm:flex-row gap-3">
+                    <!-- Dynamische Buttons werden hier eingefügt -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer (Zentriertes Branding) -->
+    <footer class="w-full py-8 text-center text-xs text-gray-400 font-normal border-t border-gray-200/40 bg-white/40 backdrop-blur-md">
+        Powered by <a href="https://bilaltoday.com" target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-black font-medium transition underline underline-offset-4">BilalToday.com</a>
+    </footer>
+
+    <!-- JavaScript Logik für Google Sheets CSV Fetch & UI Rendering -->
+    <script>
+        // ==========================================
+        // 1. TRAGE HIER DEINEN GOOGLE SHEETS CSV-LINK EIN:
+        // ==========================================
+        // Gehe in Google Sheets auf: Datei -> Freigeben -> Im Web veröffentlichen -> Webadresse (.csv)
+        const GOOGLE_SHEET_CSV_URL = 'DEIN_GOOGLE_SHEETS_CSV_LINK_HIER_EINFUEGEN';
+
+        // CSV Parser Hilfsfunktion (behandelt Kommas und Anführungszeichen korrekt)
+        function parseCSVLine(text) {
+            let result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim().replace(/^"|"$/g, ''));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim().replace(/^"|"$/g, ''));
+            return result;
+        }
+
+        async function initDashboard() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userCode = urlParams.get('code');
+
+            // Prüfen ob die URL konfiguriert wurde
+            if (GOOGLE_SHEET_CSV_URL === 'DEIN_GOOGLE_SHEETS_CSV_LINK_HIER_EINFUEGEN' || !GOOGLE_SHEET_CSV_URL.startsWith('http')) {
+                showError("Bitte trage deine veröffentlichte Google Sheets CSV-URL im JavaScript-Code in der Variable 'GOOGLE_SHEET_CSV_URL' ein.");
+                return;
+            }
+
+            // Prüfen ob ein ?code= in der URL angegeben wurde
+            if (!userCode) {
+                showError("Kein Zugangscode gefunden. Bitte rufe die Seite mit einem Code-Parameter auf, z. B. your-domain.com/?code=1234");
+                return;
+            }
+
+            try {
+                // Abruf der Live-Daten aus Google Sheets
+                const response = await fetch(GOOGLE_SHEET_CSV_URL);
+                if (!response.ok) throw new Error('Google Sheets Tabelle konnte nicht abgerufen werden.');
+                
+                const csvText = await response.text();
+                const lines = csvText.split(/\r\n|\n/);
+
+                let customerData = null;
+
+                // Durchsuche alle Zeilen der Tabelle (Zeile 0 ist Header)
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    
+                    const columns = parseCSVLine(lines[i]);
+                    
+                    // Spalte A (Index 0): Code
+                    if (columns[0] && columns[0].trim() === userCode.trim()) {
+                        customerData = {
+                            code: columns[0] || '',       // Spalte A: Code
+                            vorname: columns[1] || '',    // Spalte B: Vorname
+                            nachname: columns[2] || '',   // Spalte C: Nachname
+                            email: columns[3] || '',      // Spalte D: E-Mail-Adresse
+                            textfeld1: columns[4] || '',  // Spalte E: Textfeld 1 (Notizen)
+                            textfeld2: columns[5] || '',  // Spalte F: Textfeld 2 (Zusatzinfos)
+                            link1: columns[6] || '',      // Spalte G: Button-Link 1
+                            link2: columns[7] || '',      // Spalte H: Button-Link 2
+                            link3: columns[8] || ''       // Spalte I: Button-Link 3
+                        };
+                        break;
+                    }
+                }
+
+                if (customerData) {
+                    renderDashboard(customerData);
+                } else {
+                    showError(`Der Zugangscode "${userCode}" wurde in der Google-Tabelle nicht gefunden.`);
+                }
+
+            } catch (err) {
+                console.error(err);
+                showError("Fehler beim Laden der Daten aus Google Sheets. Stellen Sie sicher, dass die Tabelle öffentlich als CSV freigegeben ist.");
+            }
+        }
+
+        function renderDashboard(data) {
+            // UI Umschalten
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+            document.getElementById('dashboardContent').classList.remove('hidden');
+
+            // Vorname + Nachname & E-Mail
+            const fullName = `${data.vorname} ${data.nachname}`.trim();
+            document.getElementById('userName').textContent = fullName || 'Kunde';
+            document.getElementById('userEmail').textContent = data.email || 'Keine E-Mail angegeben';
+
+            // Automatische Avatar-Initialen (z. B. "Anna Schmidt" -> "AS")
+            const initialVorname = data.vorname ? data.vorname.charAt(0).toUpperCase() : '';
+            const initialNachname = data.nachname ? data.nachname.charAt(0).toUpperCase() : '';
+            const initials = (initialVorname + initialNachname) || 'K';
+            document.getElementById('userAvatar').textContent = initials;
+
+            // Notizen & Zusatzinfos
+            document.getElementById('textField1').textContent = data.textfeld1 || 'Keine Notizen vorhanden.';
+            document.getElementById('textField2').textContent = data.textfeld2 || 'Keine Zusatzinformationen vorhanden.';
+
+            // Interaktive Links/Buttons aus Spalte G, H, I
+            const actionButtonsContainer = document.getElementById('actionButtons');
+            actionButtonsContainer.innerHTML = '';
+
+            const links = [
+                { url: data.link1, label: 'Link 1 öffnen', icon: '↗' },
+                { url: data.link2, label: 'Link 2 öffnen', icon: '↗' },
+                { url: data.link3, label: 'Link 3 öffnen', icon: '↗' }
+            ];
+
+            let count = 0;
+            links.forEach((item) => {
+                if (item.url && item.url.trim().length > 3) {
+                    count++;
+                    const btn = document.createElement('a');
+                    btn.href = item.url.trim().startsWith('http') ? item.url.trim() : `https://${item.url.trim()}`;
+                    btn.target = '_blank';
+                    btn.rel = 'noopener noreferrer';
+                    
+                    // Der erste Button ist hervorgehoben (Schwarz), die weiteren dezent (Grau)
+                    const isPrimary = (count === 1);
+                    btn.className = isPrimary 
+                        ? 'flex-1 py-3 px-5 bg-black text-white rounded-xl text-sm font-medium text-center hover:bg-gray-800 transition shadow-sm flex items-center justify-center space-x-2'
+                        : 'flex-1 py-3 px-5 bg-gray-100 text-gray-800 rounded-xl text-sm font-medium text-center hover:bg-gray-200 transition flex items-center justify-center space-x-2 border border-gray-200/50';
+                    
+                    btn.innerHTML = `<span>${item.label}</span><span class="text-xs opacity-70">${item.icon}</span>`;
+                    actionButtonsContainer.appendChild(btn);
+                }
+            });
+
+            // Sektion ausblenden falls keine Links vorhanden sind
+            if (count === 0) {
+                document.getElementById('buttonSection').style.display = 'none';
+            } else {
+                document.getElementById('buttonSection').style.display = 'block';
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('dashboardContent').classList.add('hidden');
+            const errorState = document.getElementById('errorState');
+            errorState.classList.remove('hidden');
+            if (msg) {
+                document.getElementById('errorMessage').textContent = msg;
+            }
+        }
+
+        window.onload = function() {
+            initDashboard();
+        };
+    </script>
+</body>
+</html>
